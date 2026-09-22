@@ -19,6 +19,14 @@ jobs:
           tar -xzf project.tar.gz
           rm project.tar.gz
 
+      - name: Apply AGP 9 compatibility patch
+        run: |
+          sed -i '/org.jetbrains.kotlin.android/d' build.gradle.kts
+          sed -i '/org.jetbrains.kotlin.android/d' app/build.gradle.kts
+          sed -i 's/compileSdk = 37/compileSdk = 36/' app/build.gradle.kts
+          sed -i 's/targetSdk = 37/targetSdk = 36/' app/build.gradle.kts
+          sed -i '/kotlinOptions { jvmTarget = "17" }/d' app/build.gradle.kts
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -27,12 +35,6 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.6.0'
-
-      - name: Show Android environment
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls "$ANDROID_HOME/platforms" || true
-          ls "$ANDROID_HOME/build-tools" || true
 
       - name: Unit tests
         run: gradle testDebugUnitTest --stacktrace
